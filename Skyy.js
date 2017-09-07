@@ -183,7 +183,7 @@ function checkObs(){
         Game.ind += 1;
     }
 }
-function checkFall(yFall = 0.1){
+function checkFall(yFall = 0){
     if(multi){
         if (box.position.y < yFall) {
             Explosion(box);
@@ -341,11 +341,11 @@ function applysskMovements() {
 
 function setListeners(){
     document.addEventListener("keyup", function () {
-        if (event.key == 'a' || event.key == 'A') {isAPressed = false;}
-        if (event.key == 's' || event.key == 'S') {isSPressed = false;}
-        if (event.key == 'd' || event.key == 'D') {isDPressed = false;}
-        if (event.key == 'w' || event.key == 'W') {isWPressed = false;}
-        if (event.key == 'f' || event.key == 'F') {isFPressed = false;}
+        if (event.key == 'a' || event.key == 'A' || event.keyCode == '37') {isAPressed = false;}
+        if (event.key == 's' || event.key == 'S' || event.keyCode == '40') {isSPressed = false;}
+        if (event.key == 'd' || event.key == 'D' || event.keyCode == '39') {isDPressed = false;}
+        if (event.key == 'w' || event.key == 'W' || event.keyCode == '38') {isWPressed = false;}
+        if (event.key == 'f' || event.key == 'F' || event.keyCode == '32') {isFPressed = false;}
 
         if (event.key == 'i' || event.key == 'I') {isIPressed = false;}
         if (event.key == 'k' || event.key == 'K') {isKPressed = false;}
@@ -357,11 +357,11 @@ function setListeners(){
     });
 
     document.addEventListener("keydown", function () {
-        if (event.key == 'a' || event.key == 'A') {isAPressed = true;}
-        if (event.key == 's' || event.key == 'S') {isSPressed = true;}
-        if (event.key == 'd' || event.key == 'D') {isDPressed = true;}
-        if (event.key == 'w' || event.key == 'W') {isWPressed = true;}
-        if (event.key == 'f' || event.key == 'F') {isFPressed = true;}
+        if (event.key == 'a' || event.key == 'A' || event.keyCode == '37') {isAPressed = true;}
+        if (event.key == 's' || event.key == 'S' || event.keyCode == '40') {isSPressed = true;}
+        if (event.key == 'd' || event.key == 'D' || event.keyCode == '39') {isDPressed = true;}
+        if (event.key == 'w' || event.key == 'W' || event.keyCode == '38') {isWPressed = true;}
+        if (event.key == 'f' || event.key == 'F' || event.keyCode == '32') {isFPressed = true;}
 
         if (event.key == 'i' || event.key == 'I') {isIPressed = true;}
         if (event.key == 'k' || event.key == 'K') {isKPressed = true;}
@@ -437,7 +437,6 @@ Game.createLevel1 = function () { //"You Know What To Do !"
     var sceneIndex = Game.scene.push(scene) - 1;
     Game.scene[sceneIndex].renderLoop = function () {
         this.render();
-        // GameOver(23);
         checkFall();
         checkObs();
         if (box.intersectsMesh(Grounds[23], false)){console.log("e2fesh");}
@@ -486,7 +485,8 @@ Game.createLevel3 = function () { //"Porsche with no brakes"
     var sceneIndex = Game.scene.push(scene) - 1;
     Game.scene[sceneIndex].renderLoop = function () {
         this.render();
-        GameOver(0);// set win ground instead of 0
+        checkFall();
+
     }
     return scene;
 }
@@ -567,13 +567,31 @@ Game.createLevel6 = function () { //"after 6th bottle of vodka"
     activeScene.enablePhysics(gravityVector, physicsPlugin);
     loadFawzya();
     setEnvironment("6");
-    // todo
     createGround(50,5,0,0,-20,0.9,0.72,0.18);
+    createGround(10,3,-5,0,-55,0.9,0.72,0.18);
+    createGround(10,3,0,0,-70,0.9,0.72,0.18);
+    createGround(10,3,5,0,-85,0.9,0.72,0.18);
+    createGround(5,3,0,0,-100,0.9,0.72,0.18);
+    createGround(5,3,-5,0,-115,0.9,0.72,0.18);
+    createGround(30,10,0,0,-140,0.9,0.72,0.18);
+    createObstacle(7,2,2,1.5,0,-126,0.55,0.77,0.11);
+    createObstacle(7,2,2,-1.5,0,-132,0.55,0.77,0.11);
+    createObstacle(7,2,2,1.5,0,-138,0.55,0.77,0.11);
+    createObstacle(7,2,2,-1.5,0,-144,0.55,0.77,0.11);
+    createGround(4,10,-15,0,-155,0.9,0.72,0.18);
+    createGround(4,10,-30,0,-165,0.9,0.72,0.18);
+    createObstacle(1,1,1,-30,0,-164,0.9,0.72,0.18);
+    createGround(4,10,-45,0,-175,0.9,0.72,0.18);
+    createGround(4,10,-60,0,-165,0.9,0.72,0.18);
+    createObstacle(1,1,1,-60,0,-166,0.9,0.72,0.18);
+    createGround(4,10,-75,0,-155,0.9,0.72,0.18);
+
     var sceneIndex = Game.scene.push(scene) - 1;
     Game.scene[sceneIndex].renderLoop = function () {
         this.render();
         checkFall();
         checkObs();
+        if (box.intersectsMesh(Grounds[11], false)){console.log("e2fesh");}
     }
     return scene;
 }
@@ -609,15 +627,16 @@ Game.createLevel8 = function () { //"Gone in 60 seconds"
     var Timer = setTimeout(function () {
         Game.createHomeScene();
         Game.ind+=1;
-    }, 60000);
+    }, 15000);
     // todo
     createGround(100,5,0,0,0,0.86,0.12,0.52);
+    createGround(100,5,5,0,0,0.86,0.12,0.52);
     var sceneIndex = Game.scene.push(scene) - 1;
     Game.scene[sceneIndex].renderLoop = function () {
         this.render();
         checkObs();
         checkFall();
-        // clearTimeout(Timer);
+        if (box.intersectsMesh(Grounds[1], false)){clearTimeout(Timer);}
     }
     return scene;
 }
@@ -630,11 +649,36 @@ Game.createLevel9 = function () { //"built TOUGH"
     activeScene.enablePhysics(gravityVector, physicsPlugin);
     loadFawzya();
     setEnvironment("9");
-    // todo
+    createGround(30,5,0,0,-10,158/255,5/255,0);
+    createGround(30,10,0,0,-45,158/255,5/255,0);
+    createObstacle(2,2,2,0,0,-38,91/255,2/255,0,1);
+    createObstacle(2,2,2,2,0,-40,91/255,2/255,0,1);
+    createObstacle(2,2,2,-2,0,-40,91/255,2/255,0,1);
+    createObstacle(2,2,2,4,0,-42,91/255,2/255,0,1);
+    createObstacle(2,2,2,-4,0,-42,91/255,2/255,0,1);
+    createGround(50,2,0,0,-90,158/255,5/255,0);
+    createObstacle(2,0.5,1,0,0,-75,91/255,2/255,0,1);
+    createObstacle(2,0.7,1,0,0,-83,91/255,2/255,0,1);
+    createObstacle(2,1,1,0,0,-90,91/255,2/255,0,1);
+    createObstacle(2,1.2,1,0,0,-97,91/255,2/255,0,1);
+    createObstacle(2,1.5,1,0,0,-105,91/255,2/255,0,1);
+    createGround(50,20,0,0,-145,158/255,5/255,0);
+    createObstacle(4,5,3,-4,0,-130,91/255,2/255,0,10);
+    createObstacle(4,5,1,4,0,-130,91/255,2/255,0,10);
+    createObstacle(5,3,2,-2,0,-140,91/255,2/255,0,10);
+    createObstacle(1,4,2,2,0,-140,91/255,2/255,0,10);
+    createObstacle(1,1,6,0,0,-145,91/255,2/255,0,10);
+    createObstacle(4,3,5,2,0,-150,91/255,2/255,0,10);
+    createObstacle(2,5,1,-2,0,-150,91/255,2/255,0,10);
+    createObstacle(5,2,3,4,0,-160,91/255,2/255,0,10);
+    createObstacle(3,5,3,-4,0,-160,91/255,2/255,0,10);
+
+
     var sceneIndex = Game.scene.push(scene) - 1;
     Game.scene[sceneIndex].renderLoop = function () {
         this.render();
         checkFall();
+        // if (box.intersectsMesh(Grounds[11], false)){console.log("e2fesh");}
     }
     return scene;
 }
