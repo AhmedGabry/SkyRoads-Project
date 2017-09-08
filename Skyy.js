@@ -27,9 +27,15 @@ Game.scene = [];
 Game.ind = 0;
 
 Game.createHomeScene = function (){
+    modifyText("LevelTitle", " ");
+    modifyText("Timer", " ");
+    modifyText("Message", " ");
+    modifyText("FawzeyaMessage", " ");
+    modifyText("Sama7Message", " ");
     var scene = new BABYLON.Scene(engine);
     var gravityVector = new BABYLON.Vector3(0,-40, 0);
     var physicsPlugin = new BABYLON.CannonJSPlugin();
+    engine.displayLoadingUI();
     activeScene = scene
     activeScene.enablePhysics(gravityVector, physicsPlugin);
     whatGravity = false;
@@ -47,6 +53,9 @@ Game.createHomeScene = function (){
     loadFawzya();
     setEnvironment("home");
     createGround(100,100,0,0,0,0,0,0);
+    setTimeout(function () {
+        engine.hideLoadingUI();
+    }, 3500);
     var sceneIndex = Game.scene.push(scene) - 1;
     Game.scene[sceneIndex].renderLoop = function () {
         this.render();
@@ -57,6 +66,8 @@ Game.createHomeScene = function (){
                         multi = false;
                         fCrashed = false;
                         sCrashed = false;
+                        fFell = false;
+                        sFell = false;
                         switch(element.name) {
                             case 'lvl1' :
                                 Game.createLevel1();
@@ -94,9 +105,10 @@ Game.createHomeScene = function (){
     }
     return scene;
 }
-
 var fCrashed = false;
 var sCrashed = false;
+var fFell = false;
+var sFell = false
 // function GameOver(winGround,yFall = 0.07){
 //         if(multi){
 //             for(var i = 0 ; i < ObsNum ; i++) {
@@ -178,9 +190,30 @@ function checkObs(){
             }
         }
     }
-    if(multi && (fCrashed || sCrashed)){
-        Game.createHomeScene();
-        Game.ind += 1;
+    if (multi && (fCrashed || sCrashed)) {
+        var FawzeyaMessage = document.getElementById("FawzeyaMessage");
+        //FawzeyaMessage.hidden = false;
+
+        var Sama7Message = document.getElementById("Sama7Message");
+        //Sama7Message.hidden = false;
+
+        if (fCrashed) {
+            FawzeyaMessage.innerHTML = "Fawzeya 3'ory fe dahyaaaa ";
+            Sama7Message.innerHTML = "CONGRATS!! Sama7";
+        }
+
+        else {
+            FawzeyaMessage.innerHTML = "Sama7 3'ory fe dahyaaaa ";
+            Sama7Message.innerHTML = "CONGRATS!! Fawzeya";
+        }
+        fCrashed = false;
+        sCrashed = false;
+        setTimeout(function () {
+            FawzeyaMessage.innerHTML = "";
+            Sama7Message.innerHTML = "";
+            Game.createHomeScene();
+            Game.ind += 1;
+        }, 3000);
     }
 }
 function checkFall(yFall = 0){
@@ -190,30 +223,49 @@ function checkFall(yFall = 0){
             setTimeout(function () {
                 particleSystem.stop();
             }, 500);
-            fCrashed = true;
+            fFell = true;
         }
         if (box2.position.y < yFall) {
             Explosion(box2);
             setTimeout(function () {
                 particleSystem.stop();
             }, 500);
-            sCrashed = true;
+            sFell = true;
         }
-    }else{
+    }else {
         if (box.position.y < yFall) {
             Explosion(box);
             Game.createHomeScene();
             setTimeout(function () {
-                Game.ind+=1;
+                Game.ind += 1;
             }, 500);
         }
     }
-    if(multi && (fCrashed || sCrashed)){
-        Game.createHomeScene();
-        Game.ind += 1;
+    if (multi && (fFell || sFell)) {
+        var FawzeyaMessage = document.getElementById("FawzeyaMessage");
+        //FawzeyaMessage.hidden = false;
+
+        var Sama7Message = document.getElementById("Sama7Message");
+        //Sama7Message.hidden = false;
+
+        if (fFell) {
+            FawzeyaMessage.innerHTML = "Fawzeya 3'ory fe dahyaaaa ";
+            Sama7Message.innerHTML = "CONGRATS!! Sama7";
+        }
+        else {
+            FawzeyaMessage.innerHTML = "Sama7 3'ory fe dahyaaaa ";
+            Sama7Message.innerHTML = "CONGRATS!! Fawzeya";
+        }
+        fFell = false;
+        sFell = false;
+        setTimeout(function () {
+            FawzeyaMessage.innerHTML = "";
+            Sama7Message.innerHTML = "";
+            Game.createHomeScene();
+            Game.ind += 1;
+        }, 3000);
     }
 }
-
 function startGame() {
     canvas = document.getElementById("renderCanvas");
     engine = new BABYLON.Engine(canvas, true);
@@ -256,10 +308,12 @@ function setEnvironment(imgName){
 
     //Light
     var light1 = new BABYLON.HemisphericLight("l1", new BABYLON.Vector3(0, 5, 0), activeScene);
-
     //Camera
+    freeCamera = new BABYLON.FreeCamera("asd", new BABYLON.Vector3(0, 2, -5), activeScene);
+    freeCamera.attachControl(canvas);
     camera = new BABYLON.FollowCamera("follow",
         new BABYLON.Vector3(0, 2, -5), activeScene);
+
     camera.lockedTarget = box;
     camera.radius = 10; // how far from the object to follow
     camera.heightOffset = 2; // how high above the object to place the camera
@@ -354,8 +408,9 @@ function setListeners(){
         if (event.key == 'o' || event.key == 'O') {isOPressed = false;}
 
         if ((event.key == 'm' || event.key == 'M') && !multi) {enableMulti(); multi = true;}
+        if (event.key == 'C' || event.key == 'c'){activeScene.activeCameras.push(freeCamera);}
+        if (event.key == 'V' || event.key == 'v'){activeScene.activeCameras.push(camera);}
     });
-
     document.addEventListener("keydown", function () {
         if (event.key == 'a' || event.key == 'A' || event.keyCode == '37') {isAPressed = true;}
         if (event.key == 's' || event.key == 'S' || event.keyCode == '40') {isSPressed = true;}
@@ -405,6 +460,7 @@ Game.createLevel1 = function () { //"You Know What To Do !"
     var scene = new BABYLON.Scene(engine);
     var gravityVector = new BABYLON.Vector3(0,-40, 0);
     var physicsPlugin = new BABYLON.CannonJSPlugin();
+    modifyText("LevelTitle","'You Know What To Do!'");
     activeScene = scene
     activeScene.enablePhysics(gravityVector, physicsPlugin);
     loadFawzya();
@@ -416,9 +472,9 @@ Game.createLevel1 = function () { //"You Know What To Do !"
     createGround(10,3,0,0,-75,0,1,1);
     createGround(10,5,10,0,-90,1,1,1);
     createGround(10,5,-10,0,-90,1,1,1);
-    createGround(10,3,0,-5,-130,1,0,1);
-    createGround(10,3,10,-3,-135,0,0,1);
-    createGround(10,5,-10,-3,-135,0,0,1);
+    createGround(10,3,0,0,-130,1,0,1);
+    createGround(10,3,10,0,-135,0,0,1);
+    createGround(10,5,-10,0,-135,0,0,1);
     createGround(20,5,0,0,-145,0,0.5,1);
     // createGround(15,15,0,0,-175,0.5,0,1);
     createGround(10,10,0,0,-165,0.5,0,1);
@@ -439,21 +495,47 @@ Game.createLevel1 = function () { //"You Know What To Do !"
         this.render();
         checkFall();
         checkObs();
-        if (box.intersectsMesh(Grounds[23], false)){console.log("e2fesh");}
+        if(multi){
+            if (box2.intersectsMesh(Grounds[1], false)) {
+                modifyText("FawzeyaMessage", "Fawzeya 3'ory fe dahyaaaa");
+                modifyText("Sama7Message", "CONGRATS!! Sama7");
+                setTimeout(function () {
+                    Game.createHomeScene();
+                    Game.ind += 1;
+                }, 3000);
+            }
+            else if(box.intersectsMesh(Grounds[1], false)){
+                modifyText("FawzeyaMessage", "Sama7 3'ory fe dahyaaaa");
+                modifyText("Sama7Message", "CONGRATS!! Fawzya");
+                setTimeout(function () {
+                    Game.createHomeScene();
+                    Game.ind += 1;
+                }, 3000);
+            }
+        }
+        else {
+            if (box.intersectsMesh(Grounds[1], false)) {
+                modifyText("Message", "CONGRATULATIONS!! You win.");
+                setTimeout(function () {
+                    Game.createHomeScene();
+                    Game.ind += 1;
+                }, 3000);
+            }
+        }
     }
     return scene;
 }
-
 Game.createLevel2 = function () { //"TWO is my lucky number"
     var scene = new BABYLON.Scene(engine);
     var gravityVector = new BABYLON.Vector3(0,-40, 0);
     var physicsPlugin = new BABYLON.CannonJSPlugin();
     var count = 0;
+    var count2 = 0;
+    modifyText("LevelTitle", "'Two is your my number'");
     activeScene = scene
     activeScene.enablePhysics(gravityVector, physicsPlugin);
     loadFawzya();
     setEnvironment("2");
-    // Explosion();
     createGround(50,5,0,0,-25,1,1,1);
     createGround(5,50,27.5,0,-47.5,1,1,1);
     createGround(50,5,50,0,-75,1,1,1);
@@ -466,8 +548,34 @@ Game.createLevel2 = function () { //"TWO is my lucky number"
         this.render();
         checkFall();
         if (box.intersectsMesh(Grounds[0], false)&& box.intersectsMesh(Grounds[6], false)){count++;}
-        if (count == 3){Game.createHomeScene();
-            Game.ind += 1;}
+        if(multi){
+            if (box2.intersectsMesh(Grounds[0], false)&& box2.intersectsMesh(Grounds[6], false)){count2++;}
+            if (count2 == 3) {
+                modifyText("FawzeyaMessage", "Fawzeya 3'ory fe dahyaaaa");
+                modifyText("Sama7Message", "CONGRATS!! Sama7");
+                setTimeout(function () {
+                    Game.createHomeScene();
+                    Game.ind += 1;
+                }, 3000);
+            }
+            else if(count == 3){
+                modifyText("FawzeyaMessage", "Sama7 3'ory fe dahyaaaa");
+                modifyText("Sama7Message", "CONGRATS!! Fawzya");
+                setTimeout(function () {
+                    Game.createHomeScene();
+                    Game.ind += 1;
+                }, 3000);
+            }
+        }
+        else {
+            if (count == 3) {
+                modifyText("Message", "CONGRATULATIONS!! You win.");
+                setTimeout(function () {
+                    Game.createHomeScene();
+                    Game.ind += 1;
+                }, 3000);
+            }
+        }
     }
     return scene;
 }
@@ -476,17 +584,51 @@ Game.createLevel3 = function () { //"Porsche with no brakes"
     var scene = new BABYLON.Scene(engine);
     var gravityVector = new BABYLON.Vector3(0,-40, 0);
     var physicsPlugin = new BABYLON.CannonJSPlugin();
+    modifyText("LevelTitle", "'Porsche with no brakes'");
     activeScene = scene
     activeScene.enablePhysics(gravityVector, physicsPlugin);
     loadFawzya();
     setEnvironment("3");
-    // todo
-    createGround(100,5,0,0,0,1,1,1,0);
+    createGround(100, 5, 0, 0, 0, 1, 1, 1, 0);
+    createGround(10, 100, -52.5, 0, -45, 1, 1, 1, 0);
+    createGround(100, 10, -97.5, 0, -100, 1, 1, 1, 0);
+    createGround(10, 100, -52.5, 0, -155, 1, 1, 1, 0);
+    createGround(100, 5, 0, 0, -200, 1, 1, 1, 0);
+    createGround(5, 100, -52.5, 0, -247.5, 1, 1, 1, 0);
+    createGround(100, 2, -103.5, 0, -295, 1, 1, 1, 0);
+    createGround(2, 100, -52.5, 0, -344, 1, 1, 1, 0);
+    createGround(100, 2, -1.5, 0, -393, 1, 1, 1, 0)
     var sceneIndex = Game.scene.push(scene) - 1;
     Game.scene[sceneIndex].renderLoop = function () {
         this.render();
         checkFall();
-
+        if(multi){
+            if (box2.intersectsMesh(Grounds[1], false)) {
+                modifyText("FawzeyaMessage", "Fawzeya 3'ory fe dahyaaaa");
+                modifyText("Sama7Message", "CONGRATS!! Sama7");
+                setTimeout(function () {
+                    Game.createHomeScene();
+                    Game.ind += 1;
+                }, 3000);
+            }
+            else if(box.intersectsMesh(Grounds[1], false)){
+                modifyText("FawzeyaMessage", "Sama7 3'ory fe dahyaaaa");
+                modifyText("Sama7Message", "CONGRATS!! Fawzya");
+                setTimeout(function () {
+                    Game.createHomeScene();
+                    Game.ind += 1;
+                }, 3000);
+            }
+        }
+        else {
+            if (box.intersectsMesh(Grounds[8], false)) {
+                modifyText("Message", "CONGRATULATIONS!! You win.");
+                setTimeout(function () {
+                    Game.createHomeScene();
+                    Game.ind += 1;
+                }, 3000);
+            }
+        }
     }
     return scene;
 }
@@ -496,6 +638,8 @@ Game.createLevel4 = function () { //"Let go, trust me"
     var gravityVector = new BABYLON.Vector3(0,-40, 0);
     var physicsPlugin = new BABYLON.CannonJSPlugin();
     var letGo = false;
+    var letGo2 = false;
+    modifyText("LevelTitle", "'Let go, trust me!'");
     activeScene = scene
     activeScene.enablePhysics(gravityVector, physicsPlugin);
     loadFawzya();
@@ -528,32 +672,104 @@ Game.createLevel4 = function () { //"Let go, trust me"
         this.render();
         if(letGo){
             if(multi){
-
+                if (box2.position.y < -10 && letGo2) {
+                    modifyText("FawzeyaMessage", "Fawzeya 3'ory fe dahyaaaa");
+                    modifyText("Sama7Message", "CONGRATS!! Sama7");
+                    setTimeout(function () {
+                        Game.createHomeScene();
+                        Game.ind += 1;
+                    }, 3000);
+                }
+                else if(box.position.y < -10){
+                    modifyText("FawzeyaMessage", "Sama7 3'ory fe dahyaaaa");
+                    modifyText("Sama7Message", "CONGRATS!! Fawzya");
+                    setTimeout(function () {
+                        Game.createHomeScene();
+                        Game.ind += 1;
+                    }, 3000);
+                }
             }
-            else
-                if (box.position.y < -100){console.log("e2fesh");}
+            else {
+                if (box.position.y < -10) {
+                    modifyText("Message", "CONGRATULATIONS!! You win.");
+                    setTimeout(function () {
+                        Game.createHomeScene();
+                        Game.ind += 1;
+                    }, 3000);
+                }
+            }
         }
         else{
             checkObs();
             checkFall();
         }
         if (box.intersectsMesh(Grounds[13], false)){letGo = true;}
+        if (box2.intersectsMesh(Grounds[13], false)){letGo2 = true;}
     }
     return scene;
 }
-
 Game.createLevel5 = function () { //"just give up this time"
     var scene = new BABYLON.Scene(engine);
     var gravityVector = new BABYLON.Vector3(0,-40, 0);
     var physicsPlugin = new BABYLON.CannonJSPlugin();
+    modifyText("LevelTitle", "'Just give up this time'");
     activeScene = scene
     activeScene.enablePhysics(gravityVector, physicsPlugin);
     loadFawzya();
     setEnvironment("5");
-    // todo
+    createGround(300, 60, 0, 0, -140, 1, 1, 1);
+    //wid, hieght, len, xPos, yPos, zPos, rr, gg, bb, m = 200
+    createObstacle(20 , 3 , 5, -20 , 5 , -20 , 0.3, 0, 0.4);
+    createObstacle(20, 3 , 5, 20 , 5 , -20 , 0.3, 0, 0.4);
+    createObstacle(45 , 3 , 5, 7.5 , 5 , -40 , 0.3, 0, 0.4);
+    createObstacle(45 , 3 , 5, -7.5 , 5 , -60 , 0.3, 0, 0.4);
+    createObstacle(15 , 3 , 5, 22.5 , 5 , -80 , 0.3, 0, 0.4);
+    createObstacle(15 , 3 , 5, -7.5 , 5 , -80 , 0.3, 0, 0.4);
+    createObstacle(45 , 3 , 5, 7.5 , 5 , -100 , 0.3, 0, 0.4);
+    createObstacle(28 , 3 , 5, 16 , 5 , -120 , 0.3, 0, 0.4);
+    createObstacle(18 , 3 , 5, -21 , 5 , -120 , 0.3, 0, 0.4);
+    createObstacle(12 , 3, 5, -24 , 5 , -140 , 0.3, 0, 0.4);
+    createObstacle(12 , 3 , 5, 0, 5 , -140 , 0.3, 0, 0.4);
+    createObstacle(12 , 3  , 5, 24, 5 , -140 , 0.3, 0, 0.4);
+    createObstacle(20 , 3 , 5, -20, 5 , -160, 0.3, 0, 0.4);
+    createObstacle(20 , 3 , 5, 20, 5 , -160 , 0.3, 0, 0.4);
+    createObstacle(20, 3, 5, -20, 5, -180, 0.3, 0, 0.4);
+    createObstacle(20, 3, 5, 20, 5, -180, 0.3, 0, 0.4);
+    createObstacle(45, 3, 5, 7.5, 5, -200, 0.3, 0, 0.4);
+    createObstacle(45, 3, 5, -7.5, 5, -220, 0.3, 0, 0.4);
+    createObstacle(15, 3, 5, 22.5, 5, -240, 0.3, 0, 0.4);
+    createObstacle(15, 3, 5, -7.5, 5, -240, 0.3, 0, 0.4);
     var sceneIndex = Game.scene.push(scene) - 1;
     Game.scene[sceneIndex].renderLoop = function () {
         this.render();
+        checkObs();
+        if(multi){
+            if (box2.position.y < -10) {
+                modifyText("FawzeyaMessage", "Fawzeya 3'ory fe dahyaaaa");
+                modifyText("Sama7Message", "CONGRATS!! Sama7");
+                setTimeout(function () {
+                    Game.createHomeScene();
+                    Game.ind += 1;
+                }, 3000);
+            }
+            else if(box.position.y < -10){
+                modifyText("FawzeyaMessage", "Sama7 3'ory fe dahyaaaa");
+                modifyText("Sama7Message", "CONGRATS!! Fawzya");
+                setTimeout(function () {
+                    Game.createHomeScene();
+                    Game.ind += 1;
+                }, 3000);
+            }
+        }
+        else {
+            if (box.position.y < -10) {
+                modifyText("Message", "CONGRATULATIONS!! You win.");
+                setTimeout(function () {
+                    Game.createHomeScene();
+                    Game.ind += 1;
+                }, 3000);
+            }
+        }
     }
     return scene;
 }
@@ -563,6 +779,7 @@ Game.createLevel6 = function () { //"after 6th bottle of vodka"
     var gravityVector = new BABYLON.Vector3(0,-40, 0);
     var physicsPlugin = new BABYLON.CannonJSPlugin();
     isDrunk = true;
+    modifyText("LevelTitle", "'After the 5th bottle of Vodka'");
     activeScene = scene
     activeScene.enablePhysics(gravityVector, physicsPlugin);
     loadFawzya();
@@ -591,7 +808,33 @@ Game.createLevel6 = function () { //"after 6th bottle of vodka"
         this.render();
         checkFall();
         checkObs();
-        if (box.intersectsMesh(Grounds[11], false)){console.log("e2fesh");}
+        if(multi){
+            if (box2.intersectsMesh(Grounds[11], false)) {
+                modifyText("FawzeyaMessage", "Fawzeya 3'ory fe dahyaaaa");
+                modifyText("Sama7Message", "CONGRATS!! Sama7");
+                setTimeout(function () {
+                    Game.createHomeScene();
+                    Game.ind += 1;
+                }, 3000);
+            }
+            else if(box.intersectsMesh(Grounds[11], false)){
+                modifyText("FawzeyaMessage", "Sama7 3'ory fe dahyaaaa");
+                modifyText("Sama7Message", "CONGRATS!! Fawzya");
+                setTimeout(function () {
+                    Game.createHomeScene();
+                    Game.ind += 1;
+                }, 3000);
+            }
+        }
+        else {
+            if (box.intersectsMesh(Grounds[11], false)) {
+                modifyText("Message", "CONGRATULATIONS!! You win.");
+                setTimeout(function () {
+                    Game.createHomeScene();
+                    Game.ind += 1;
+                }, 3000);
+            }
+        }
     }
     return scene;
 }
@@ -600,18 +843,66 @@ Game.createLevel7 = function () { //"what gravity ?!"
     var scene = new BABYLON.Scene(engine);
     var gravityVector = new BABYLON.Vector3(0,-40, 0);
     var physicsPlugin = new BABYLON.CannonJSPlugin();
+    modifyText("LevelTitle", "'Gravity! ...What Gravity ?!'" );
     activeScene = scene
     activeScene.enablePhysics(gravityVector, physicsPlugin);
     loadFawzya();
     setEnvironment("7");
     whatGravity = true;
-    // todo
-    createGround(100,5,0,0,0,1,1,1);
+    createGround(50, 30, 0, 0, -20, 0.6, 0.7, 0.3);
+    createGround(30, 25, 0, 0, -80, 0.6, 0.7, 0.3);
+    createGround(10, 30, -37.5, 0, -120, 0.7, 0.7, 0.3);
+    createGround(10, 30, 37.5, 0, -120, 0.7, 0.7, 0.3);
+    createGround(100, 15, -37.5, 0, -195, 0.7, 0.7, 0.3);
+    createGround(100, 15, 37.5, 0, -195, 0.7, 0.7, 0.3);
+    createGround(25, 20, 0, 0, -195, 0.7, 0.7, 0.3);
+    createGround(50, 20, 0, 0, -262.5, 0.7, 0.7, 0.3);
+    createGround(30, 50, 0, 0, -322.5, 0.7, 0.7, 0.3);
+    createGround(20, 10, 40, 0, -367.5, 0.7, 0.7, 0.3);
+    createGround(20, 10, -40, 0, -367.5, 0.7, 0.7, 0.3);
+    //               w   h  l x  y    z  r       b        g
+    createObstacle(20, 4, 3, 0, 2, -25, 72 / 255, 244 / 255, 66 / 255);
+    createObstacle(10, 4, 2, 0, 2, -80, 72 / 255, 244 / 255, 66 / 255);
+    createObstacle(5, 4, 5, -30, 2, -120, 72 / 255, 244 / 255, 66 / 255);
+    createObstacle(5, 4, 5, -45, 2, -120, 72 / 255, 244 / 255, 66 / 255);
+    createObstacle(5, 4, 5, 30, 2, -120, 72 / 255, 244 / 255, 66 / 255);
+    createObstacle(5, 4, 5, 45, 2, -120, 72 / 255, 244 / 255, 66 / 255);
+    createObstacle(10, 4, 5, -37.5, 2, -205, 72 / 255, 244 / 255, 66 / 255);
+    createObstacle(10, 4, 5, 37.5, 2, -205, 72 / 255, 244 / 255, 66 / 255);
+    createObstacle(10, 4, 5, 0, 2, -262.5, 72 / 255, 244 / 255, 66 / 255);
+    createObstacle(30, 4, 2.5, 0, 2, -322.5, 72 / 255, 244 / 255, 66 / 255);
     var sceneIndex = Game.scene.push(scene) - 1;
     Game.scene[sceneIndex].renderLoop = function () {
         this.render();
         checkObs();
         checkFall();
+        if(multi){
+            if (box2.intersectsMesh(Grounds[10], false)) {
+                modifyText("FawzeyaMessage", "Fawzeya 3'ory fe dahyaaaa");
+                modifyText("Sama7Message", "CONGRATS!! Sama7");
+                setTimeout(function () {
+                    Game.createHomeScene();
+                    Game.ind += 1;
+                }, 3000);
+            }
+            else if(box.intersectsMesh(Grounds[10], false)){
+                modifyText("FawzeyaMessage", "Sama7 3'ory fe dahyaaaa");
+                modifyText("Sama7Message", "CONGRATS!! Fawzya");
+                setTimeout(function () {
+                    Game.createHomeScene();
+                    Game.ind += 1;
+                }, 3000);
+            }
+        }
+        else {
+            if (box.intersectsMesh(Grounds[10], false)) {
+                modifyText("Message", "CONGRATULATIONS!! You win.");
+                setTimeout(function () {
+                    Game.createHomeScene();
+                    Game.ind += 1;
+                }, 3000);
+            }
+        }
     }
     return scene;
 }
@@ -620,23 +911,74 @@ Game.createLevel8 = function () { //"Gone in 60 seconds"
     var scene = new BABYLON.Scene(engine);
     var gravityVector = new BABYLON.Vector3(0,-40, 0);
     var physicsPlugin = new BABYLON.CannonJSPlugin();
+    modifyText("LevelTitle", "'Gone in 60 seconds'" );
     activeScene = scene
     activeScene.enablePhysics(gravityVector, physicsPlugin);
     loadFawzya();
     setEnvironment("8");
-    var Timer = setTimeout(function () {
-        Game.createHomeScene();
-        Game.ind+=1;
-    }, 15000);
-    // todo
-    createGround(100,5,0,0,0,0.86,0.12,0.52);
-    createGround(100,5,5,0,0,0.86,0.12,0.52);
+
+    createGround(60, 5, 0, 0, 0, 0.7, 0.7, 0.3);
+    createGround(5, 30, -17.5, 0, 0, 0.7, 0.7, 0.3);
+    createGround(5, 50, -27.5, 0, -27.5, 0.7, 0.7, 0.3);
+    createGround(22.5, 5, -15, 0, -13.75, 0.7, 0.7, 0.3);
+    createGround(5, 50, -27.5, 0, 15, 0.7, 0.7, 0.3);
+    createGround(22.5, 5, -27.5, 0, -13.75, 0.7, 0.7, 0.3);
+    createGround(10, 5, -15, 0, 7.5, 0.7, 0.7, 0.3);
+    createGround(10, 5, -27.5, 0, 7.5, 0.7, 0.7, 0.3);
+    createGround(15, 5, -27.5, 0, 25, 0.7, 0.7, 0.3);
+    createGround(47.7, 5, -55, 0, -6, 0.7, 0.7, 0.3);
+    createGround(5, 10, -62.5, 0, -9.5, 0.7, 0.7, 0.3);
+    createGround(45, 5.5, -70, 0, 10.5, 0.7, 0.7, 0.3);
+    createGround(20, 10, -45, 0, 30, 0.7, 0.7, 0.3);
+    var timer = 60;
+    var time = 60;
+    var stopTimer = false;
+    modifyText("Timer", "Time: "+time);
     var sceneIndex = Game.scene.push(scene) - 1;
     Game.scene[sceneIndex].renderLoop = function () {
         this.render();
-        checkObs();
         checkFall();
-        if (box.intersectsMesh(Grounds[1], false)){clearTimeout(Timer);}
+        timer -= 1;
+        if (timer == 0 && !stopTimer) {
+            time--;
+            modifyText("Timer", "Time: " + time);
+            timer = 60;
+        }
+        if (time == 0) {
+            stopTimer = true;
+            modifyText("Message", "Tick tock, time's up");
+            setTimeout(function () {
+                Game.createHomeScene();
+                Game.ind += 1;
+            }, 3000);
+        }
+        if(multi){
+            if (box2.intersectsMesh(Grounds[1], false)) {
+                modifyText("FawzeyaMessage", "Fawzeya 3'ory fe dahyaaaa");
+                modifyText("Sama7Message", "CONGRATS!! Sama7");
+                setTimeout(function () {
+                    Game.createHomeScene();
+                    Game.ind += 1;
+                }, 3000);
+            }
+            else if(box.intersectsMesh(Grounds[1], false)){
+                modifyText("FawzeyaMessage", "Sama7 3'ory fe dahyaaaa");
+                modifyText("Sama7Message", "CONGRATS!! Fawzya");
+                setTimeout(function () {
+                    Game.createHomeScene();
+                    Game.ind += 1;
+                }, 3000);
+            }
+        }
+        else {
+            if (box.intersectsMesh(Grounds[8], false)) {
+                modifyText("Message", "CONGRATULATIONS!! You win.");
+                setTimeout(function () {
+                    Game.createHomeScene();
+                    Game.ind += 1;
+                }, 3000);
+            }
+        }
     }
     return scene;
 }
@@ -645,6 +987,7 @@ Game.createLevel9 = function () { //"built TOUGH"
     var scene = new BABYLON.Scene(engine);
     var gravityVector = new BABYLON.Vector3(0,-40, 0);
     var physicsPlugin = new BABYLON.CannonJSPlugin();
+    modifyText("LevelTitle", "'Built TOUGH'");
     activeScene = scene
     activeScene.enablePhysics(gravityVector, physicsPlugin);
     loadFawzya();
@@ -672,17 +1015,46 @@ Game.createLevel9 = function () { //"built TOUGH"
     createObstacle(2,5,1,-2,0,-150,91/255,2/255,0,10);
     createObstacle(5,2,3,4,0,-160,91/255,2/255,0,10);
     createObstacle(3,5,3,-4,0,-160,91/255,2/255,0,10);
-
-
+    createGround(30,2,0,0,-190,158/255,5/255,0);
+    createObstacle(2,1.5,1,0,0,-180,91/255,2/255,0,10);
+    createObstacle(2,2,1,0,0,-185,91/255,2/255,0,10);
+    createObstacle(2,2,1,0,0,-190,91/255,2/255,0,10);
+    createObstacle(2,2.5,1,0,0,-200,91/255,2/255,0,10);
+    createGround(5,5,0,0,-215,158/255,5/255,0);
     var sceneIndex = Game.scene.push(scene) - 1;
     Game.scene[sceneIndex].renderLoop = function () {
         this.render();
         checkFall();
-        // if (box.intersectsMesh(Grounds[11], false)){console.log("e2fesh");}
+        if(multi){
+            if (box2.intersectsMesh(Grounds[5], false)) {
+                modifyText("FawzeyaMessage", "Fawzeya 3'ory fe dahyaaaa");
+                modifyText("Sama7Message", "CONGRATS!! Sama7");
+                setTimeout(function () {
+                    Game.createHomeScene();
+                    Game.ind += 1;
+                }, 3000);
+            }
+            else if(box.intersectsMesh(Grounds[5], false)){
+                modifyText("FawzeyaMessage", "Sama7 3'ory fe dahyaaaa");
+                modifyText("Sama7Message", "CONGRATS!! Fawzya");
+                setTimeout(function () {
+                    Game.createHomeScene();
+                    Game.ind += 1;
+                }, 3000);
+            }
+        }
+        else {
+            if (box.intersectsMesh(Grounds[5], false)) {
+                modifyText("Message", "CONGRATULATIONS!! You win.");
+                setTimeout(function () {
+                    Game.createHomeScene();
+                    Game.ind += 1;
+                }, 3000);
+            }
+        }
     }
     return scene;
 }
-
 function enableMulti(){
     //Sama7
     box2 = new BABYLON.Mesh.CreateBox("Spaceship2",1,activeScene);
@@ -711,4 +1083,9 @@ function enableMulti(){
     activeScene.activeCameras.push(camera2);
     camera2.viewport = new BABYLON.Viewport(0.5,0,0.5,1);
     camera.viewport = new BABYLON.Viewport(0,0,0.5,1);
+}
+function modifyText(componentName,message)
+{
+    var component = document.getElementById(componentName);
+    component.innerHTML = message;
 }
