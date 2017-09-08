@@ -18,6 +18,7 @@ var multi = false;
 var whatGravity = false;
 var isDrunk = false;
 var box;
+var box2;
 var particleSystem;
 var roadMat;
 var levels = [];
@@ -109,60 +110,6 @@ var fCrashed = false;
 var sCrashed = false;
 var fFell = false;
 var sFell = false
-// function GameOver(winGround,yFall = 0.07){
-//         if(multi){
-//             for(var i = 0 ; i < ObsNum ; i++) {
-//                 if (box.intersectsMesh(Obstacles[i], false)) {
-//                     Explosion(box);
-//                     fCrashed = true;
-//                     break;
-//                 }
-//                 if (box2.intersectsMesh(Obstacles[i], false)) {
-//                     Explosion(box2);
-//                     sCrashed = true;
-//                     break;
-//                 }
-//             }
-//             if (box.position.y < yFall) {
-//                 Explosion(box);
-//                 setTimeout(function () {
-//                     particleSystem.stop();
-//                 }, 500);
-//                 fCrashed = true;
-//             }
-//             if (box2.position.y < yFall) {
-//                 Explosion(box2);
-//                 setTimeout(function () {
-//                     particleSystem.stop();
-//                 }, 500);
-//                 sCrashed = true;
-//             }
-//         }else{
-//             for(var i = 0 ; i < ObsNum ; i++) {
-//                 if (box.intersectsMesh(Obstacles[i], false)) {
-//                     Explosion(box);
-//                     Game.createHomeScene();
-//                     console.log("tank collided with " + Obstacles[i].name);
-//                     setTimeout(function () {
-//                         Game.ind += 1;
-//                     }, 1000);
-//                     break;
-//                 }
-//             }
-//             if (box.position.y < yFall) {
-//                 Explosion(box);
-//                 Game.createHomeScene();
-//                 setTimeout(function () {
-//                     Game.ind+=1;
-//                 }, 500);
-//             }
-//         }
-//     if(multi && (fCrashed || sCrashed)){
-//         Game.createHomeScene();
-//         Game.ind += 1;
-//     }
-//     if (box.intersectsMesh(Grounds[winGround], false)){console.log("e2fesh");}
-// }
 function checkObs(){
     if(multi){
         for(var i = 0 ; i < ObsNum ; i++) {
@@ -181,11 +128,10 @@ function checkObs(){
         for(var i = 0 ; i < ObsNum ; i++) {
             if (box.intersectsMesh(Obstacles[i], false)) {
                 Explosion(box);
-                Game.createHomeScene();
-                console.log("tank collided with " + Obstacles[i].name);
                 setTimeout(function () {
+                    Game.createHomeScene();
                     Game.ind += 1;
-                }, 1000);
+                }, 1500);
                 break;
             }
         }
@@ -235,10 +181,10 @@ function checkFall(yFall = 0){
     }else {
         if (box.position.y < yFall) {
             Explosion(box);
-            Game.createHomeScene();
             setTimeout(function () {
+                Game.createHomeScene();
                 Game.ind += 1;
-            }, 500);
+            }, 1500);
         }
     }
     if (multi && (fFell || sFell)) {
@@ -496,7 +442,7 @@ Game.createLevel1 = function () { //"You Know What To Do !"
         checkFall();
         checkObs();
         if(multi){
-            if (box2.intersectsMesh(Grounds[1], false)) {
+            if (box2.intersectsMesh(Grounds[23], false)) {
                 modifyText("FawzeyaMessage", "Fawzeya 3'ory fe dahyaaaa");
                 modifyText("Sama7Message", "CONGRATS!! Sama7");
                 setTimeout(function () {
@@ -504,7 +450,7 @@ Game.createLevel1 = function () { //"You Know What To Do !"
                     Game.ind += 1;
                 }, 3000);
             }
-            else if(box.intersectsMesh(Grounds[1], false)){
+            else if(box.intersectsMesh(Grounds[23], false)){
                 modifyText("FawzeyaMessage", "Sama7 3'ory fe dahyaaaa");
                 modifyText("Sama7Message", "CONGRATS!! Fawzya");
                 setTimeout(function () {
@@ -514,7 +460,7 @@ Game.createLevel1 = function () { //"You Know What To Do !"
             }
         }
         else {
-            if (box.intersectsMesh(Grounds[1], false)) {
+            if (box.intersectsMesh(Grounds[23], false)) {
                 modifyText("Message", "CONGRATULATIONS!! You win.");
                 setTimeout(function () {
                     Game.createHomeScene();
@@ -603,7 +549,7 @@ Game.createLevel3 = function () { //"Porsche with no brakes"
         this.render();
         checkFall();
         if(multi){
-            if (box2.intersectsMesh(Grounds[1], false)) {
+            if (box2.intersectsMesh(Grounds[8], false)) {
                 modifyText("FawzeyaMessage", "Fawzeya 3'ory fe dahyaaaa");
                 modifyText("Sama7Message", "CONGRATS!! Sama7");
                 setTimeout(function () {
@@ -611,7 +557,7 @@ Game.createLevel3 = function () { //"Porsche with no brakes"
                     Game.ind += 1;
                 }, 3000);
             }
-            else if(box.intersectsMesh(Grounds[1], false)){
+            else if(box.intersectsMesh(Grounds[8], false)){
                 modifyText("FawzeyaMessage", "Sama7 3'ory fe dahyaaaa");
                 modifyText("Sama7Message", "CONGRATS!! Fawzya");
                 setTimeout(function () {
@@ -670,8 +616,8 @@ Game.createLevel4 = function () { //"Let go, trust me"
     var sceneIndex = Game.scene.push(scene) - 1;
     Game.scene[sceneIndex].renderLoop = function () {
         this.render();
-        if(letGo){
             if(multi){
+                if (box2.intersectsMesh(Grounds[13], false)){letGo2 = true;}
                 if (box2.position.y < -10 && letGo2) {
                     modifyText("FawzeyaMessage", "Fawzeya 3'ory fe dahyaaaa");
                     modifyText("Sama7Message", "CONGRATS!! Sama7");
@@ -680,7 +626,7 @@ Game.createLevel4 = function () { //"Let go, trust me"
                         Game.ind += 1;
                     }, 3000);
                 }
-                else if(box.position.y < -10){
+                else if(box.position.y < -10 && letGo){
                     modifyText("FawzeyaMessage", "Sama7 3'ory fe dahyaaaa");
                     modifyText("Sama7Message", "CONGRATS!! Fawzya");
                     setTimeout(function () {
@@ -690,7 +636,7 @@ Game.createLevel4 = function () { //"Let go, trust me"
                 }
             }
             else {
-                if (box.position.y < -10) {
+                if (box.position.y < -10 && letGo) {
                     modifyText("Message", "CONGRATULATIONS!! You win.");
                     setTimeout(function () {
                         Game.createHomeScene();
@@ -698,13 +644,9 @@ Game.createLevel4 = function () { //"Let go, trust me"
                     }, 3000);
                 }
             }
-        }
-        else{
             checkObs();
             checkFall();
-        }
         if (box.intersectsMesh(Grounds[13], false)){letGo = true;}
-        if (box2.intersectsMesh(Grounds[13], false)){letGo2 = true;}
     }
     return scene;
 }
@@ -773,7 +715,6 @@ Game.createLevel5 = function () { //"just give up this time"
     }
     return scene;
 }
-
 Game.createLevel6 = function () { //"after 6th bottle of vodka"
     var scene = new BABYLON.Scene(engine);
     var gravityVector = new BABYLON.Vector3(0,-40, 0);
@@ -953,7 +894,7 @@ Game.createLevel8 = function () { //"Gone in 60 seconds"
             }, 3000);
         }
         if(multi){
-            if (box2.intersectsMesh(Grounds[1], false)) {
+            if (box2.intersectsMesh(Grounds[8], false)) {
                 modifyText("FawzeyaMessage", "Fawzeya 3'ory fe dahyaaaa");
                 modifyText("Sama7Message", "CONGRATS!! Sama7");
                 setTimeout(function () {
@@ -961,7 +902,7 @@ Game.createLevel8 = function () { //"Gone in 60 seconds"
                     Game.ind += 1;
                 }, 3000);
             }
-            else if(box.intersectsMesh(Grounds[1], false)){
+            else if(box.intersectsMesh(Grounds[8], false)){
                 modifyText("FawzeyaMessage", "Sama7 3'ory fe dahyaaaa");
                 modifyText("Sama7Message", "CONGRATS!! Fawzya");
                 setTimeout(function () {
