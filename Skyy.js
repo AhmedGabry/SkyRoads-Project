@@ -33,6 +33,10 @@ Game.createHomeScene = function (){
     modifyText("Message", " ");
     modifyText("FawzeyaMessage", " ");
     modifyText("Sama7Message", " ");
+    modifyText("Instruction","press h for help !");
+    setTimeout(function () {
+        modifyText("Instruction"," ");
+    }, 6500);
     var scene = new BABYLON.Scene(engine);
     var gravityVector = new BABYLON.Vector3(0,-40, 0);
     var physicsPlugin = new BABYLON.CannonJSPlugin();
@@ -356,6 +360,7 @@ function setListeners(){
         if ((event.key == 'm' || event.key == 'M') && !multi) {enableMulti(); multi = true;}
         if (event.key == 'C' || event.key == 'c'){activeScene.activeCameras.push(freeCamera);}
         if (event.key == 'V' || event.key == 'v'){activeScene.activeCameras.push(camera);}
+        if (event.key == 'h' || event.key == 'H') {modifyText("Instruction", " ");}
     });
     document.addEventListener("keydown", function () {
         if (event.key == 'a' || event.key == 'A' || event.keyCode == '37') {isAPressed = true;}
@@ -369,6 +374,8 @@ function setListeners(){
         if (event.key == 'j' || event.key == 'J') {isJPressed = true;}
         if (event.key == 'l' || event.key == 'L') {isLPressed = true;}
         if (event.key == 'o' || event.key == 'O') {isOPressed = true;}
+
+        if (event.key == 'h' || event.key == 'H') {modifyText("Instruction", "well it's obvious ! don't fall ! avoid obstacles ! and win !! :D Player1 can use arrows and space or WASD and F, Player2 can use IJKL and O for jumping ! press m to enable Multiplayer press c for free camera and v for follow camera that's it !");}
     });
 }
 
